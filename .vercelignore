@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pkl
+*.faiss
+.env
+.env.local
+.venv/
+venv/
+New4.py
