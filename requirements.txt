@@ -1,0 +1,14 @@
+streamlit
+openai
+python-dotenv
+PyPDF2
+python-docx
+scikit-learn
+streamlit-webrtc
+moviepy
+pyttsx3
+langchain
+langchain-community
+langchain-openai
+faiss-cpu
+openpyxl
