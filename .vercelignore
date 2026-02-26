@@ -8,3 +8,7 @@ __pycache__/
 .venv/
 venv/
 New4.py
+requirements.txt
+pages/
+utils/
+main.py

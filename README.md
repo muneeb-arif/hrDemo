@@ -34,6 +34,8 @@ cd hr_demo_muneeb
 
 2. Install dependencies:
 ```bash
+# For local development, rename requirements-full.txt to requirements.txt first
+mv requirements-full.txt requirements.txt
 pip install -r requirements.txt
 ```
 
@@ -110,7 +112,7 @@ vercel
 │   └── autosphere_ai.py   # AutoSphere Motors AI implementation
 ├── utils/                  # Utility modules
 │   └── openai_client.py   # OpenAI client configuration
-├── requirements.txt        # Python dependencies
+├── requirements-full.txt   # Full Python dependencies (rename to requirements.txt for local dev)
 ├── vercel.json            # Vercel configuration (for serverless deployment)
 ├── api/                   # Serverless functions (for Vercel)
 │   └── index.py

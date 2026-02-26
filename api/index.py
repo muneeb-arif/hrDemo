@@ -2,13 +2,10 @@
 Vercel Serverless Function for Streamlit App
 Note: This is a workaround as Streamlit requires a persistent server.
 For production, consider using Streamlit Cloud, Railway, or Render.
+
+This minimal serverless function doesn't import Streamlit or heavy dependencies
+to stay within Vercel's 500MB Lambda limit.
 """
-
-import sys
-import os
-
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from http.server import BaseHTTPRequestHandler
 import json

@@ -1,0 +1,3 @@
+# Minimal requirements for Vercel serverless function
+# Note: Streamlit and heavy ML packages are excluded as they exceed Vercel's limits
+# This file is only for the serverless function wrapper
