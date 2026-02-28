@@ -16,7 +16,69 @@ from utils.openai_client import get_openai_client
 def run_autosphere():
 
     client = get_openai_client()
-    st.title("🚗 AutoSphere Motors AI Assistant")
+    
+    # Add custom styling for AutoSphere page
+    st.markdown("""
+    <style>
+        .autosphere-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        .chat-message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+        }
+        .user-message {
+            background: #e3f2fd;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background: #f5f5f5;
+            margin-right: 20%;
+        }
+        .stChatInput {
+            border-radius: 10px;
+        }
+        .stForm {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .stTextInput > div > div > input {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        .stTextInput > div > div > input:focus {
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245,87,108,0.1);
+        }
+        .stSelectbox > div > div {
+            border-radius: 10px;
+        }
+        .stButton > button {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="autosphere-header">
+        <h1 style='margin: 0; color: white;'>🚗 AutoSphere Motors AI Assistant</h1>
+        <p style='margin: 0.5rem 0 0 0; color: rgba(255,255,255,0.9);'>
+            Your Intelligent Automotive Assistant • Book Services • Get Answers
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
     LLM_MODEL = "gpt-4o"
     EMBED_MODEL = "text-embedding-3-large"
