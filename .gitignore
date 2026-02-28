@@ -33,3 +33,8 @@ Thumbs.db
 .env.local
 .DS_Store
 .streamlit/secrets.toml
+
+# project specific
+cvs
+cv_files
+cv_samples
