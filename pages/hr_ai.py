@@ -3,6 +3,8 @@ import PyPDF2
 import docx
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+import json
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -193,6 +195,17 @@ def run_hr_ai():
                     # Create DataFrame and Plotly chart
                     df = pd.DataFrame(results)
                     df = df.rename(columns={"name": "Candidate", "score": "Score"})
+                    
+                    # Executive KPI
+                    st.markdown("### Executive KPI")
+                    top_candidate_name = df.loc[df['Score'].idxmax(), 'Candidate']
+                    
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    col1.metric("Total Candidates", len(df))
+                    col2.metric("Average Match", f"{df['Score'].mean():.1f}%")
+                    col3.metric("Top Score", f"{df['Score'].max():.1f}%")
+                    col4.metric("Top Candidate", top_candidate_name)
                     
                     fig = px.bar(
                         df.sort_values("Score", ascending=False),
