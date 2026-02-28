@@ -32,7 +32,7 @@ Thumbs.db
 .env
 .env.local
 .DS_Store
-.streamlit/secrets.toml
+secrets.toml
 
 # project specific
 cvs
