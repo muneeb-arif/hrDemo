@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 
 class SkillScore(BaseModel):
@@ -50,7 +50,7 @@ class CVEvaluationRequest(BaseModel):
 class CVEvaluationResponse(BaseModel):
     """CV evaluation response schema"""
     results: List[CVResult] = Field(..., description="Ranked list of CV evaluation results")
-    executive_kpis: Dict[str, any] = Field(..., description="Executive KPIs (total candidates, average match, etc.)")
+    executive_kpis: Dict[str, Any] = Field(..., description="Executive KPIs (total candidates, average match, etc.)")
     
     class Config:
         json_schema_extra = {

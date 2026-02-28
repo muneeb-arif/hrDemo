@@ -10,7 +10,76 @@ auth_service = AuthService()
 
 @bp.route('/login', methods=['POST'])
 def login():
-    """Login endpoint - returns JWT token"""
+    """
+    Authenticate user and receive JWT token
+    ---
+    tags:
+      - Authentication
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        description: Login credentials
+        required: true
+        schema:
+          type: object
+          required:
+            - username
+            - password
+          properties:
+            username:
+              type: string
+              example: john_doe
+            password:
+              type: string
+              example: password123
+    responses:
+      200:
+        description: Login successful
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: Login successful
+            data:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    username:
+                      type: string
+                      example: john_doe
+                    role:
+                      type: string
+                      example: HR Manager
+      401:
+        description: Invalid credentials
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+            message:
+              type: string
+              example: Invalid username or password
+      422:
+        description: Validation error
+    """
     try:
         # Validate request
         login_data = LoginRequest(**request.json)

@@ -14,18 +14,32 @@ def _load_secrets_toml():
             import toml
             with open(secrets_file, 'r') as f:
                 secrets = toml.load(f)
-        except ImportError:
-            # Fallback: simple parsing if toml library not available
-            with open(secrets_file, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        key = key.strip()
-                        value = value.strip().strip('"').strip("'")
-                        secrets[key] = value
-        except Exception as e:
-            print(f"Warning: Could not load secrets.toml: {e}")
+        except (ImportError, Exception) as e:
+            # Fallback: simple parsing for key=value format (handles mixed TOML and simple format)
+            try:
+                with open(secrets_file, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        # Skip comments and empty lines
+                        if not line or line.startswith('#'):
+                            continue
+                        
+                        # Handle both TOML format (KEY = "value") and simple format (KEY=value)
+                        if '=' in line:
+                            # Split on =, but be careful with quoted values
+                            parts = line.split('=', 1)
+                            if len(parts) == 2:
+                                key = parts[0].strip()
+                                value = parts[1].strip()
+                                
+                                # Remove quotes if present
+                                if (value.startswith('"') and value.endswith('"')) or \
+                                   (value.startswith("'") and value.endswith("'")):
+                                    value = value[1:-1]
+                                
+                                secrets[key] = value
+            except Exception as parse_error:
+                print(f"Warning: Could not load secrets.toml: {parse_error}")
     
     return secrets
 

@@ -383,11 +383,47 @@ FLASK_ENV=development
 **Note:** The app will check `secrets.toml` first, then environment variables. Both files are in `.gitignore` to protect your secrets.
 
 5. Run the application:
+
+**Option 1: Flask development server (with auto-reload)**
 ```bash
 python run.py
 ```
 
-The API will be available at `http://localhost:5000`
+**Option 2: Uvicorn with watch mode (recommended for development)**
+```bash
+python run_uvicorn.py
+```
+
+Or directly with uvicorn:
+```bash
+uvicorn run_uvicorn:app --reload --host 0.0.0.0 --port 5001
+```
+
+The API will be available at `http://localhost:5001` (default port 5001 to avoid conflict with macOS AirPlay Receiver on port 5000)
+
+**Note:** You can change the port by setting the `FLASK_PORT` environment variable:
+```bash
+FLASK_PORT=5000 python run.py
+# or
+FLASK_PORT=5000 python run_uvicorn.py
+```
+
+**Watch Mode:** Both methods support auto-reload on file changes:
+- Flask's `use_reloader=True` (default in debug mode)
+- Uvicorn's `--reload` flag
+
+### Swagger UI Documentation
+
+Access Swagger UI for interactive API testing at:
+- **URL**: `http://localhost:5001/swagger` (or your configured port)
+- **Username**: `swagger`
+- **Password**: `!!swagger!!`
+
+Swagger UI provides:
+- Complete API documentation
+- Interactive endpoint testing
+- Request/response examples
+- Authentication testing with JWT tokens
 
 ## API Endpoints
 
@@ -624,7 +660,7 @@ On first application startup:
 
 ### 1. Login
 ```bash
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST http://localhost:5001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "your_username", "password": "your_password"}'
 ```
@@ -647,7 +683,7 @@ Response:
 
 ### 2. Evaluate CVs
 ```bash
-curl -X POST http://localhost:5000/api/hr/cv/evaluate \
+curl -X POST http://localhost:5001/api/hr/cv/evaluate \
   -H "Authorization: Bearer <your_jwt_token>" \
   -F "job_description=We are looking for a Python developer..." \
   -F "cv_files=@candidate1.pdf" \
@@ -656,7 +692,7 @@ curl -X POST http://localhost:5000/api/hr/cv/evaluate \
 
 ### 3. Chat with AutoSphere AI
 ```bash
-curl -X POST http://localhost:5000/api/autosphere/chat \
+curl -X POST http://localhost:5001/api/autosphere/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <your_jwt_token>" \
   -d '{"message": "What services do you offer?"}'
@@ -664,7 +700,7 @@ curl -X POST http://localhost:5000/api/autosphere/chat \
 
 ### 4. Create Booking
 ```bash
-curl -X POST http://localhost:5000/api/autosphere/bookings \
+curl -X POST http://localhost:5001/api/autosphere/bookings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <your_jwt_token>" \
   -d '{

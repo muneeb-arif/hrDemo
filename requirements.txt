@@ -6,6 +6,11 @@ pydantic
 python-dotenv
 toml
 werkzeug
+flasgger
+uvicorn[standard]
+gunicorn
+watchdog
+asgiref
 openai
 langchain
 langchain-community
