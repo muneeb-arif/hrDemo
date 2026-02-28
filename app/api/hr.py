@@ -37,7 +37,10 @@ def evaluate_cvs():
         description: Job description text
       - in: formData
         name: cv_files
-        type: file
+        type: array
+        items:
+          type: file
+        collectionFormat: multi
         required: true
         description: Candidate CV files (PDF or DOCX, multiple allowed)
     responses:
@@ -137,7 +140,10 @@ def upload_policies():
     parameters:
       - in: formData
         name: policy_files
-        type: file
+        type: array
+        items:
+          type: file
+        collectionFormat: multi
         required: true
         description: Policy PDF files (multiple allowed)
     responses:
