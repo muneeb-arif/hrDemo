@@ -217,21 +217,44 @@ def run_hr_ai():
         # Fallback: return empty lists
         return {"missing": [], "absent": [], "strong": []}
 
-    def get_hire_recommendation(score, missing_skills, absent_skills):
-        """Determine hire recommendation based on score and missing skills"""
-        # Determine recommendation level
-        if score >= 80:
-            recommendation = "Strong Hire"
-            emoji = "🟢"
-            color = "#16a34a"
-        elif score >= 60:
-            recommendation = "Consider"
-            emoji = "🟡"
-            color = "#eab308"
+    def get_hire_recommendation(score, missing_skills, absent_skills, all_scores=None):
+        """Determine hire recommendation based on score, missing skills, and relative ranking"""
+        # If we have all scores, use relative ranking
+        if all_scores and len(all_scores) > 1:
+            avg_score = sum(all_scores) / len(all_scores)
+            max_score = max(all_scores)
+            
+            # Relative to average and max
+            if score >= max_score * 0.9:  # Top 10% of candidates
+                recommendation = "Strong Hire"
+                emoji = "🟢"
+                color = "#16a34a"
+            elif score >= avg_score * 1.2 or score >= 60:  # Above average by 20% or absolute 60%+
+                recommendation = "Consider"
+                emoji = "🟡"
+                color = "#eab308"
+            elif score >= avg_score:  # At or above average
+                recommendation = "Consider"
+                emoji = "🟡"
+                color = "#eab308"
+            else:
+                recommendation = "Not Recommended"
+                emoji = "🔴"
+                color = "#dc2626"
         else:
-            recommendation = "Not Recommended"
-            emoji = "🔴"
-            color = "#dc2626"
+            # Fallback to absolute thresholds if no comparison data
+            if score >= 80:
+                recommendation = "Strong Hire"
+                emoji = "🟢"
+                color = "#16a34a"
+            elif score >= 60:
+                recommendation = "Consider"
+                emoji = "🟡"
+                color = "#eab308"
+            else:
+                recommendation = "Not Recommended"
+                emoji = "🔴"
+                color = "#dc2626"
         
         # Calculate risk level based on missing/absent skills
         total_risks = len(missing_skills) + len(absent_skills)
@@ -393,11 +416,15 @@ def run_hr_ai():
                             absent_skills = skill_status.get("absent", [])
                             strong_skills = skill_status.get("strong", [])
                             
-                            # Get hire recommendation
+                            # Get all scores for relative comparison
+                            all_scores = [res['score'] for res in results]
+                            
+                            # Get hire recommendation (with relative comparison)
                             hire_rec = get_hire_recommendation(
                                 r['score'], 
                                 missing_skills, 
-                                absent_skills
+                                absent_skills,
+                                all_scores=all_scores
                             )
                             
                             # Display Hire Recommendation Card
@@ -413,50 +440,40 @@ def run_hr_ai():
                                 <h3 style='margin: 0 0 10px 0; color: white; font-size: 1.5em;'>
                                     {hire_rec["emoji"]} {hire_rec["recommendation"]}
                                 </h3>
-                                <div style='display: flex; gap: 20px; margin-top: 15px;'>
-                                    <div>
-                                        <strong style='font-size: 0.9em; opacity: 0.9;'>Confidence:</strong>
-                                        <div style='font-size: 1.3em; font-weight: bold;'>{hire_rec["confidence"]:.1f}%</div>
-                                    </div>
-                                    <div>
-                                        <strong style='font-size: 0.9em; opacity: 0.9;'>Risk Level:</strong>
-                                        <div style='font-size: 1.3em; font-weight: bold;'>{hire_rec["risk_level"]}</div>
-                                    </div>
-                                </div>
                             </div>
                             """
                             st.markdown(card_html, unsafe_allow_html=True)
                             
-                            # Display Skill Radar Chart
-                            st.markdown("#### Skill Radar Chart")
-                            skills = r.get("skills", [])
-                            skill_scores = r.get("skill_scores", {})
-                            
-                            if skills and skill_scores:
-                                # Prepare data for radar chart
-                                r_values = [skill_scores.get(skill, 0) for skill in skills]
-                                
-                                fig = go.Figure()
-                                
-                                fig.add_trace(go.Scatterpolar(
-                                    r=r_values,
-                                    theta=skills,
-                                    fill='toself',
-                                    name=r['name']
-                                ))
-                                
-                                fig.update_layout(
-                                    polar=dict(
-                                        radialaxis=dict(
-                                            visible=True,
-                                            range=[0, 100]
-                                        )
-                                    ),
-                                    showlegend=False,
-                                    height=400
-                                )
-                                
-                                st.plotly_chart(fig, use_container_width=True)
+                            # Skill Radar Chart - HIDDEN FOR NOW
+                            # st.markdown("#### Skill Radar Chart")
+                            # skills = r.get("skills", [])
+                            # skill_scores = r.get("skill_scores", {})
+                            # 
+                            # if skills and skill_scores:
+                            #     # Prepare data for radar chart
+                            #     r_values = [skill_scores.get(skill, 0) for skill in skills]
+                            #     
+                            #     fig = go.Figure()
+                            #     
+                            #     fig.add_trace(go.Scatterpolar(
+                            #         r=r_values,
+                            #         theta=skills,
+                            #         fill='toself',
+                            #         name=r['name']
+                            #     ))
+                            #     
+                            #     fig.update_layout(
+                            #         polar=dict(
+                            #             radialaxis=dict(
+                            #                 visible=True,
+                            #                 range=[0, 100]
+                            #             )
+                            #         ),
+                            #         showlegend=False,
+                            #         height=400
+                            #     )
+                            #     
+                            #     st.plotly_chart(fig, use_container_width=True)
                             
                             st.markdown("---")
                             
