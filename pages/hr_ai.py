@@ -1,6 +1,8 @@
 import streamlit as st
 import PyPDF2
 import docx
+import pandas as pd
+import plotly.express as px
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -10,6 +12,64 @@ from utils.openai_client import get_openai_client
 def run_hr_ai():
 
     client = get_openai_client()
+    
+    # Add custom styling for HR page
+    st.markdown("""
+    <style>
+        .hr-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        .stExpander {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            margin: 1rem 0;
+        }
+        .stFileUploader {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+        .stTextArea > div > div > textarea {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        .stTextArea > div > div > textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .stTextInput > div > div > input {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        .stTextInput > div > div > input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .stButton > button {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="hr-header">
+        <h1 style='margin: 0; color: white;'>👥 HR AI Platform</h1>
+        <p style='margin: 0.5rem 0 0 0; color: rgba(255,255,255,0.9);'>
+            Intelligent HR Management • CV Evaluation • Policy Assistant
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # ------------------ HELPERS ------------------
 
@@ -53,8 +113,14 @@ def run_hr_ai():
 
     # ------------------ ROLE SELECTION ------------------
 
-    role = st.sidebar.selectbox("Select Role", ["HR Manager", "Employee"])
-    st.sidebar.write(f"Current Role: **{role}**")
+    st.sidebar.markdown("### 👤 Role Selection")
+    role = st.sidebar.selectbox(
+        "Choose your role",
+        ["HR Manager", "Employee"],
+        label_visibility="collapsed"
+    )
+    st.sidebar.markdown(f"**Current Role:** {role}")
+    st.sidebar.markdown("---")
 
     # ==================================================
     # HR MANAGER VIEW
@@ -123,6 +189,21 @@ def run_hr_ai():
                     results = sorted(results, key=lambda x: x["score"], reverse=True)
 
                     st.success("Evaluation Completed")
+
+                    # Create DataFrame and Plotly chart
+                    df = pd.DataFrame(results)
+                    df = df.rename(columns={"name": "Candidate", "score": "Score"})
+                    
+                    fig = px.bar(
+                        df.sort_values("Score", ascending=False),
+                        x="Score",
+                        y="Candidate",
+                        orientation="h",
+                        color="Score",
+                        color_continuous_scale="Blues"
+                    )
+                    
+                    st.plotly_chart(fig, use_container_width=True)
 
                     for i, r in enumerate(results, 1):
                         with st.expander(f"Rank {i}: {r['name']} ({r['score']}%)"):

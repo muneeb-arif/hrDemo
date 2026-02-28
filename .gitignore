@@ -16,6 +16,7 @@ v3-venv/
 venv/
 env/
 ENV/
+.venv
 
 # IDE
 .vscode/
@@ -30,5 +31,5 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
-
 .DS_Store
+.streamlit/secrets.toml
