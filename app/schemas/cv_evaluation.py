@@ -32,6 +32,7 @@ class CVResult(BaseModel):
     skill_scores: Dict[str, float] = Field(default_factory=dict, description="Skill scores per category")
     skill_status: SkillStatus = Field(..., description="Skill status breakdown")
     hire_recommendation: HireRecommendation = Field(..., description="Hire recommendation")
+    skills: Optional[List[str]] = Field(default=None, description="List of skill categories extracted from job description")
 
 
 class CVEvaluationRequest(BaseModel):
