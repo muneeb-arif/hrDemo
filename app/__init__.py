@@ -1,4 +1,4 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, redirect
 from flask_cors import CORS
 from flasgger import Swagger
 from app.config import Config
@@ -75,6 +75,11 @@ def create_app(config_class=Config):
         print(f"Warning: Swagger initialization error: {e}")
         # Continue without Swagger if there's an error
     
+    # Redirect root path to Swagger UI
+    @app.route('/')
+    def index():
+        return redirect('/swagger')
+    
     # Protect Swagger UI with basic auth (but allow /apispec.json to be accessed by Swagger UI)
     @app.before_request
     def protect_swagger():
@@ -98,8 +103,15 @@ def create_app(config_class=Config):
                     {'WWW-Authenticate': 'Basic realm="Swagger UI Login Required"'})
         # Allow /apispec.json to be accessed (Swagger UI needs it to load the spec)
     
-    # Initialize database
-    with app.app_context():
-        init_db()
+    # Initialize database with error handling
+    # On Vercel, database initialization might fail due to file system limitations
+    try:
+        with app.app_context():
+            init_db()
+    except Exception as e:
+        # Log error but don't fail app creation
+        # Database will be created on first use if needed
+        print(f"Warning: Database initialization failed: {e}")
+        print(f"This is expected on Vercel if using SQLite. Consider using a managed database.")
     
     return app
