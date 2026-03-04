@@ -12,7 +12,7 @@ def create_app(config_class=Config):
     
     # Initialize extensions
     db.init_app(app)
-    CORS(app)  # Enable CORS for React frontend
+    CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all origins
     
     # Register blueprints first (needed for Swagger to discover routes)
     from app.api import auth as auth_bp, hr as hr_bp, autosphere as autosphere_bp
