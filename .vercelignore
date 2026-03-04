@@ -9,5 +9,5 @@ __pycache__/
 venv/
 New4.py
 pages/
-utils/
+/utils/
 main.py
