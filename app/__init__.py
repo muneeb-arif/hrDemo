@@ -1,7 +1,8 @@
-from flask import Flask, request, Response, redirect
+from flask import Flask, request, Response, redirect, jsonify
 from flask_cors import CORS
 from app.config import Config
 from app.database import db, init_db
+from app.utils.openapi_spec import get_openapi_spec
 
 # Make flasgger optional - it requires building from source which fails on Vercel
 try:
@@ -19,7 +20,18 @@ def create_app(config_class=Config):
     
     # Initialize extensions
     db.init_app(app)
-    CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all origins
+    # Enable CORS for localhost origins (common development ports)
+    localhost_origins = [
+        "http://localhost",
+        "http://localhost:3000",
+        "http://localhost:5001",
+        "http://localhost:8080",
+        "http://127.0.0.1",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5001",
+        "http://127.0.0.1:8080",
+    ]
+    CORS(app, resources={r"/*": {"origins": localhost_origins}})
     
     # Register blueprints first (needed for Swagger to discover routes)
     from app.api import auth as auth_bp, hr as hr_bp, autosphere as autosphere_bp
@@ -84,20 +96,73 @@ def create_app(config_class=Config):
             print(f"Warning: Swagger initialization error: {e}")
             # Continue without Swagger if there's an error
     else:
-        print("Warning: flasgger not available. Swagger UI will not be available.")
-        # Create a simple info endpoint instead
+        print("Warning: flasgger not available. Using static Swagger UI instead.")
+        
+        # Serve OpenAPI spec JSON
+        @app.route('/apispec.json')
+        def openapi_spec():
+            # Get base URL from request - works on both localhost and Vercel
+            if request.is_secure:
+                scheme = 'https'
+            else:
+                scheme = 'http'
+            base_url = f"{scheme}://{request.host}"
+            spec = get_openapi_spec(base_url)
+            return jsonify(spec)
+        
+        # Serve Swagger UI HTML (works without flasgger)
         @app.route('/swagger')
-        def swagger_info():
-            return {
-                'message': 'Swagger UI is not available',
-                'reason': 'flasgger package is not installed (requires building from source)',
-                'note': 'Install flasgger locally for Swagger UI documentation',
-                'endpoints': {
-                    'auth': '/api/auth',
-                    'hr': '/api/hr',
-                    'autosphere': '/api/autosphere'
-                }
-            }, 200
+        def swagger_ui():
+            swagger_html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Documentation - Enterprise AI Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin:0;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                url: "/apispec.json",
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                tryItOutEnabled: true,
+                supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+                validatorUrl: null
+            });
+        };
+    </script>
+</body>
+</html>
+            """
+            return Response(swagger_html, mimetype='text/html')
     
     # Redirect root path to Swagger UI (or info page if Swagger not available)
     @app.route('/')
