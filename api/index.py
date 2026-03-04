@@ -8,7 +8,8 @@ import sys
 from io import BytesIO
 
 # Add parent directory to path to import app
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+parent_dir = os.path.join(os.path.dirname(__file__), '..')
+sys.path.insert(0, os.path.abspath(parent_dir))
 
 # Configure database path for Vercel (use /tmp for writable storage)
 # Note: SQLite on Vercel is not ideal for production due to serverless nature
@@ -16,10 +17,27 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 os.environ.setdefault('DATABASE_URL', 'sqlite:////tmp/hr_demo.db')
 
 # Import Flask app
-from app import create_app
-
-# Create Flask app instance (module-level for reuse across invocations)
-flask_app = create_app()
+try:
+    from app import create_app
+    
+    # Create Flask app instance (module-level for reuse across invocations)
+    # Vercel expects this to be named 'app' for automatic Flask detection
+    app = create_app()
+    flask_app = app  # Keep alias for backward compatibility
+except Exception as e:
+    # If import fails, create a minimal error app
+    from flask import Flask
+    app = Flask(__name__)
+    
+    @app.route('/<path:path>')
+    def error_handler(path):
+        return {
+            'error': f'Failed to import Flask app: {str(e)}',
+            'path': path
+        }, 500
+    
+    flask_app = app
+    print(f"Warning: Failed to import main app: {e}")
 
 def handler(request):
     """
