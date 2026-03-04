@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, g
 from pydantic import ValidationError
 from app.middleware.auth import require_auth, require_role
 from app.services.hr_service import HRService
@@ -123,11 +123,10 @@ def evaluate_cvs():
 
 @bp.route('/policy/upload', methods=['POST'])
 @require_auth
-@require_role('HR Manager')
 def upload_policies():
     """
     Upload Policy Documents
-    Upload multiple HR policy PDF documents (HR Manager only)
+    Upload multiple HR policy PDF documents
     ---
     tags:
       - HR AI Platform
@@ -173,8 +172,6 @@ def upload_policies():
         description: Bad request
       401:
         description: Unauthorized
-      403:
-        description: Forbidden (HR Manager role required)
       500:
         description: Server error
     """
@@ -183,7 +180,7 @@ def upload_policies():
         if not policy_files or not any(f.filename for f in policy_files):
             return error_response("At least one policy file is required", status_code=400)
         
-        user_id = request.g.user_id
+        user_id = g.user_id
         result = hr_service.upload_policies(policy_files, user_id)
         
         return success_response(data=result, message=result['message'])
