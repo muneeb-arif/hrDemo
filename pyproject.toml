@@ -1,0 +1,32 @@
+[project]
+name = "hr-demo-python"
+version = "1.0.0"
+description = "HR Demo Flask Application"
+requires-python = ">=3.8"
+dependencies = [
+    "flask",
+    "flask-sqlalchemy",
+    "flask-cors",
+    "pyjwt",
+    "pydantic",
+    "python-dotenv",
+    "toml",
+    "werkzeug",
+    "uvicorn[standard]",
+    "gunicorn",
+    "watchdog",
+    "asgiref",
+    "openai",
+    "langchain",
+    "langchain-community",
+    "langchain-openai",
+    "faiss-cpu",
+    "pandas",
+    "openpyxl",
+    "PyPDF2",
+    "python-docx",
+    "scikit-learn",
+]
+
+[project.scripts]
+app = "api.index:app"
