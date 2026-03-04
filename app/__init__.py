@@ -20,8 +20,21 @@ def create_app(config_class=Config):
     
     # Initialize extensions
     db.init_app(app)
-    # Enable CORS - allow all origins regardless of environment
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    # Enable CORS - explicitly allow frontend origins
+    allowed_origins = [
+        "https://informityxapp.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ]
+    CORS(app, 
+         resources={r"/*": {
+             "origins": allowed_origins,
+             "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+             "supports_credentials": True
+         }})
     
     # Register blueprints first (needed for Swagger to discover routes)
     from app.api import auth as auth_bp, hr as hr_bp, autosphere as autosphere_bp
